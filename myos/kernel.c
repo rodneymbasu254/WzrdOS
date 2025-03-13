@@ -1,23 +1,19 @@
+/* kernel.c */
 #include <stdint.h>
 
-#define UART0_BASE 0x3F201000  // Raspberry Pi 2 UART address
-
-volatile uint32_t* const UART0_DR   = (uint32_t*)(UART0_BASE + 0x00);
-volatile uint32_t* const UART0_FR   = (uint32_t*)(UART0_BASE + 0x18);
-
-void uart_send(char c) {
-    while (*UART0_FR & (1 << 5));  // Wait until TX FIFO is not full
-    *UART0_DR = c;
+void uart_putc(char c) {
+    /* Implement UART output (hardware-specific) */
+    volatile uint32_t *uart_data = (volatile uint32_t *)0x101f1000; //Example uart address
+    *uart_data = (uint32_t)c;
 }
 
-void uart_print(const char* str) {
-    while (*str) {
-        uart_send(*str++);
+void uart_puts(const char *s) {
+    while (*s) {
+        uart_putc(*s++);
     }
 }
 
-__attribute__((used)) __attribute__((section(".text"))) __attribute__((noreturn))
-void kernel_main() {
-    uart_print("Kernel is running...\n");
-    while (1) {}  // Keep running
+void kernel_main(void) {
+    uart_puts("Hello, World! from my ARM OS!\n");
+    while (1); // Simple loop
 }

@@ -1,19 +1,17 @@
+.section .text.boot
 .global _start
-.extern kernel_main
-
-.section .text
-
-.equ UART0_BASE, 0x3F201000
 
 _start:
-    ldr sp, =0x8000
+    /* Disable interrupts (example) */
+    mrs r0, cpsr
+    orr r0, r0, #0xC0 /* Disable IRQ and FIQ */
+    msr cpsr, r0
 
-    ldr r0, =UART0_BASE
-    ldr r1, =88
-    str r1, [r0]
+    /* Set up stack pointer (example) */
+    ldr sp, =0x80000000 /* Example stack address */
 
-    bl kernel_main
+    /* Load kernel address (example) */
+    ldr r0, =kernel_start_address
+    mov pc, r0 /* Jump to kernel */
 
-    b .
-
-
+kernel_start_address: .word 0x80001000 /* Example kernel start address */

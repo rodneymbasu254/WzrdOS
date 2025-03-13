@@ -1,22 +1,28 @@
-ARCH=arm-none-eabi
-CFLAGS=-ffreestanding -nostdlib -Wall -Wextra
+# Makefile for ARM bare-metal OS
 
-all: kernel.bin
+CC=arm-none-eabi-gcc
+AS=arm-none-eabi-as
+LD=arm-none-eabi-ld
+OBJCOPY=arm-none-eabi-objcopy
+CFLAGS=-Wall -O0 -nostdlib -nostartfiles -ffreestanding
+LDFLAGS=-T linker.ld
+
+all: kernel.img
 
 boot.o: boot.s
-	$(ARCH)-as boot.s -o boot.o
+	$(AS) -o $@ $<
 
 kernel.o: kernel.c
-	$(ARCH)-gcc -c kernel.c -o kernel.o $(CFLAGS)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 kernel.elf: boot.o kernel.o linker.ld
-	$(ARCH)-ld -T linker.ld boot.o kernel.o -o kernel.elf
+	$(LD) $(LDFLAGS) -o $@ boot.o kernel.o
 
-kernel.bin: kernel.elf
-	$(ARCH)-objcopy -O binary kernel.elf kernel.bin
+kernel.img: kernel.elf
+	$(OBJCOPY) -O binary $< $@
 
-run: kernel.bin
-	qemu-system-arm -M raspi2b -kernel kernel.bin -serial stdio
+run: kernel.img
+	qemu-system-arm -M versatilepb -nographic -kernel kernel.img
 
 clean:
-	rm -f *.o *.elf *.bin
+	rm -f *.o *.elf *.img
