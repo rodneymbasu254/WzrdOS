@@ -1,10 +1,6 @@
-/* kernel.c */
-#include <stdint.h>
-
 void uart_putc(char c) {
-    /* Implement UART output (hardware-specific) */
-    volatile uint32_t *uart_data = (volatile uint32_t *)0x101f1000; //Example uart address
-    *uart_data = (uint32_t)c;
+    volatile unsigned int *UART0 = (unsigned int *)0x09000000;
+    *UART0 = (unsigned int)c;
 }
 
 void uart_puts(const char *s) {
@@ -13,7 +9,8 @@ void uart_puts(const char *s) {
     }
 }
 
-void kernel_main(void) {
-    uart_puts("Hello, World! from my ARM OS!\n");
-    while (1); // Simple loop
+int main(void) {
+    uart_puts("Hello from ARM OS!\n");
+    while (1);
+    return 0;
 }
